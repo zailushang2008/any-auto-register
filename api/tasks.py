@@ -103,15 +103,51 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
     try:
         PlatformCls = get(req.platform)
 
-        def _build_mailbox(proxy: Optional[str]):
+        def _build_mailbox(proxy: Optional[str], outlook_acct=None):
             from core.config_store import config_store
             merged_extra = config_store.get_all().copy()
             merged_extra.update({k: v for k, v in req.extra.items() if v is not None and v != ""})
+            provider = merged_extra.get("mail_provider", "laoudo")
+
+            # 如果传入了 outlook_acct，使用该账号的凭据
+            if provider == "outlook" and outlook_acct is not None:
+                extra = outlook_acct.get_extra()
+                merged_extra["outlook_email"] = extra.get("outlook_email", outlook_acct.email)
+                merged_extra["outlook_password"] = extra.get("outlook_password", outlook_acct.password)
+                merged_extra["outlook_client_id"] = extra.get("outlook_client_id", "")
+                merged_extra["outlook_refresh_token"] = extra.get("outlook_refresh_token", "")
+
             return create_mailbox(
-                provider=merged_extra.get("mail_provider", "laoudo"),
+                provider=provider,
                 extra=merged_extra,
                 proxy=proxy,
             )
+
+        # 预加载可用的 Outlook 邮箱池（按需）
+        _outlook_pool = []
+        _outlook_lock = threading.Lock()
+        _outlook_idx = [0]  # 用 list 包装以便在闭包中修改
+
+        def _get_outlook_acct():
+            """从池中取一个 Outlook 账号（轮询）"""
+            if not _outlook_pool:
+                from core.db import AccountModel, engine
+                from sqlmodel import Session, select
+                with Session(engine) as db_sess:
+                    stmt = select(AccountModel).where(
+                        AccountModel.platform == "chatgpt",
+                        AccountModel.status != "banned",
+                    ).order_by(AccountModel.id)
+                    for acct in db_sess.exec(stmt).all():
+                        extra = acct.get_extra()
+                        if extra.get("outlook_email") or extra.get("mailbox_provider") == "outlook":
+                            _outlook_pool.append(acct)
+                if not _outlook_pool:
+                    raise RuntimeError("没有可用的 Outlook 邮箱，请先导入 Outlook 邮箱账号")
+            with _outlook_lock:
+                acct = _outlook_pool[_outlook_idx[0] % len(_outlook_pool)]
+                _outlook_idx[0] += 1
+                return acct
 
         def _do_one(i: int):
             nonlocal next_start_time
@@ -139,7 +175,10 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
                     proxy=_proxy,
                     extra=merged_extra,
                 )
-                _mailbox = _build_mailbox(_proxy)
+                _mailbox_acct = None
+                if merged_extra.get("mail_provider") == "outlook":
+                    _mailbox_acct = _get_outlook_acct()
+                _mailbox = _build_mailbox(_proxy, outlook_acct=_mailbox_acct)
                 _platform = PlatformCls(config=_config, mailbox=_mailbox)
                 _platform._log_fn = lambda msg: _log(task_id, msg)
                 if getattr(_platform, "mailbox", None) is not None:
