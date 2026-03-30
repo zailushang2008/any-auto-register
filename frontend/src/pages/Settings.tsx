@@ -22,6 +22,7 @@ const SELECT_FIELDS: Record<string, { label: string; value: string }[]> = {
     { label: 'Freemail（自建 CF Worker）', value: 'freemail' },
     { label: 'CF Worker（自建域名）', value: 'cfworker' },
     { label: 'LuckMail（订单接码 / 已购邮箱）', value: 'luckmail' },
+    { label: 'Outlook / Hotmail', value: 'outlook' },
   ],
   default_executor: [
     { label: 'API 协议（无浏览器）', value: 'protocol' },
@@ -115,6 +116,16 @@ const TAB_ITEMS = [
           { key: 'luckmail_api_key', label: 'API Key', secret: true },
           { key: 'luckmail_email_type', label: '邮箱类型（可选）', placeholder: 'ms_graph / ms_imap / self_built' },
           { key: 'luckmail_domain', label: '邮箱域名（可选）', placeholder: 'outlook.com / gmail.com' },
+        ],
+      },
+      {
+        title: 'Outlook / Hotmail',
+        desc: '使用自己的 Outlook/Hotmail 邮箱接码注册（IMAP 或 Graph API）',
+        fields: [
+          { key: 'outlook_email', label: '邮箱地址', placeholder: 'user@outlook.com' },
+          { key: 'outlook_password', label: '密码（IMAP 用）', secret: true },
+          { key: 'outlook_client_id', label: 'Client ID（Graph API 用）', placeholder: 'xxxxxxxx-xxxx-...' },
+          { key: 'outlook_refresh_token', label: 'Refresh Token（Graph API 用）', secret: true },
         ],
       },
     ],

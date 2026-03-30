@@ -16,6 +16,7 @@ CONFIG_KEYS = [
     "smstome_cookie", "smstome_country_slugs", "smstome_phone_attempts", "smstome_otp_timeout_seconds",
     "smstome_poll_interval_seconds", "smstome_sync_max_pages_per_country",
     "luckmail_base_url", "luckmail_api_key", "luckmail_email_type", "luckmail_domain",
+    "outlook_email", "outlook_password", "outlook_client_id", "outlook_refresh_token",
     "cpa_api_url", "cpa_api_key",
     "team_manager_url", "team_manager_key",
     "cliproxyapi_management_key",
