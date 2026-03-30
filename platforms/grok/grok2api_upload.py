@@ -78,7 +78,7 @@ def _request_options() -> dict:
         "proxies": None,
         "verify": False,
         "timeout": 30,
-        "impersonate": "chrome110",
+        "impersonate": "chrome136",
     }
 
 

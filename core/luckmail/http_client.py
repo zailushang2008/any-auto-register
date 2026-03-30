@@ -94,13 +94,18 @@ class LuckMailHttpClient:
         api_secret: Optional[str] = None,
         timeout: float = 30.0,
         use_hmac: bool = False,
-        impersonate: str = "chrome",
+        impersonate: str = None,  # None = 从指纹池随机选择
     ):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.api_secret = api_secret
         self.timeout = timeout
         self.use_hmac = use_hmac and api_secret is not None
+        # 如果未指定 impersonate，从指纹池随机选择
+        if impersonate is None:
+            from ..fingerprint_pool import get_random_profile
+            fp = get_random_profile("chrome", prefer_newer=True)
+            impersonate = fp["impersonate"]
         self.impersonate = impersonate
 
         # 同步 Session（延迟初始化）

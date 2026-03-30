@@ -210,7 +210,7 @@ def get_trae_user_info(token: str) -> dict | None:
                              "Chrome/145.0.0.0 Safari/537.36"
             },
             json={},
-            impersonate="chrome124",
+            impersonate="chrome136",
             timeout=15,
         )
         

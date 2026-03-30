@@ -42,7 +42,7 @@ class CursorRegister:
     def __init__(self, proxy: str = None, log_fn: Callable = print):
         from curl_cffi import requests as curl_req
         self.log = log_fn
-        self.s = curl_req.Session(impersonate="safari17_0")
+        self.s = curl_req.Session(impersonate="chrome136")
         if proxy:
             self.s.proxies = {"http": proxy, "https": proxy}
 

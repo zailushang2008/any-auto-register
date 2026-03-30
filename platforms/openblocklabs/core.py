@@ -90,8 +90,10 @@ def _make_signals() -> str:
 # ─── Register ────────────────────────────────────────────────────────────────
 class OpenBlockLabsRegister:
     def __init__(self, proxy: str = None):
+        from core.fingerprint_pool import get_random_profile
+        fp = get_random_profile("chrome", prefer_newer=True)
         self.s = curl_requests.Session()
-        self.s.impersonate = "chrome131"
+        self.s.impersonate = fp["impersonate"]
         if proxy:
             self.s.proxies = {"http": proxy, "https": proxy}
         self.s.headers.update({

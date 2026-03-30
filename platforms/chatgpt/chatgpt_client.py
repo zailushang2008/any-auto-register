@@ -15,6 +15,7 @@ except ImportError:
     import sys
     sys.exit(1)
 
+from core.fingerprint_pool import get_random_profile, random_device_id
 from .sentinel_token import build_sentinel_token
 from .utils import (
     FlowState,
@@ -29,35 +30,16 @@ from .utils import (
 )
 
 
-# Chrome 指纹配置
-_CHROME_PROFILES = [
-    {
-        "major": 131, "impersonate": "chrome131",
-        "build": 6778, "patch_range": (69, 205),
-        "sec_ch_ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-    },
-    {
-        "major": 133, "impersonate": "chrome133a",
-        "build": 6943, "patch_range": (33, 153),
-        "sec_ch_ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
-    },
-    {
-        "major": 136, "impersonate": "chrome136",
-        "build": 7103, "patch_range": (48, 175),
-        "sec_ch_ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-    },
-]
-
-
 def _random_chrome_version():
-    """随机选择一个 Chrome 版本"""
-    profile = random.choice(_CHROME_PROFILES)
-    major = profile["major"]
-    build = profile["build"]
-    patch = random.randint(*profile["patch_range"])
-    full_ver = f"{major}.0.{build}.{patch}"
-    ua = f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{full_ver} Safari/537.36"
-    return profile["impersonate"], major, full_ver, ua, profile["sec_ch_ua"]
+    """使用统一指纹池随机选择一个 Chrome 版本"""
+    profile = get_random_profile("chrome", prefer_newer=True)
+    return (
+        profile["impersonate"],
+        profile["major"],
+        profile["ua"],
+        profile["ua"],
+        profile["sec_ch_ua"],
+    )
 
 
 class ChatGPTClient:
@@ -79,15 +61,15 @@ class ChatGPTClient:
         self.verbose = verbose
         self.browser_mode = browser_mode or "protocol"
         self.device_id = str(uuid.uuid4())
-        self.accept_language = random.choice([
-            "en-US,en;q=0.9",
-            "en-US,en;q=0.9,zh-CN;q=0.8",
-            "en,en-US;q=0.9",
-            "en-US,en;q=0.8",
-        ])
         
-        # 随机 Chrome 版本
-        self.impersonate, self.chrome_major, self.chrome_full, self.ua, self.sec_ch_ua = _random_chrome_version()
+        # 从指纹池获取随机指纹
+        fp = get_random_profile("chrome", prefer_newer=True)
+        self.impersonate = fp["impersonate"]
+        self.chrome_major = fp["major"]
+        self.ua = fp["ua"]
+        self.sec_ch_ua = fp["sec_ch_ua"]
+        self.accept_language = fp["accept_language"]
+        self.sec_ch_ua_platform = fp.get("sec_ch_ua_platform", '"Windows"')
         
         # 创建 session
         self.session = curl_requests.Session(impersonate=self.impersonate)
@@ -101,16 +83,25 @@ class ChatGPTClient:
             "Accept-Language": self.accept_language,
             "sec-ch-ua": self.sec_ch_ua,
             "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
+            "sec-ch-ua-platform": self.sec_ch_ua_platform,
             "sec-ch-ua-arch": '"x86"',
             "sec-ch-ua-bitness": '"64"',
-            "sec-ch-ua-full-version": f'"{self.chrome_full}"',
-            "sec-ch-ua-platform-version": f'"{random.randint(10, 15)}.0.0"',
+            "sec-ch-ua-full-version": f'"{self.chrome_full}"' if hasattr(self, 'chrome_full') else '"136.0.7103.113"',
+            "sec-ch-ua-platform-version": self._random_platform_version(),
         })
         
         # 设置 oai-did cookie
         seed_oai_device_cookie(self.session, self.device_id)
         self.last_registration_state = FlowState()
+    
+    def _random_platform_version(self) -> str:
+        """根据平台生成随机版本号"""
+        if "macOS" in self.sec_ch_ua_platform:
+            return f'"15.0.0"'
+        elif "Linux" in self.sec_ch_ua_platform:
+            return f'"6.8.0"'
+        else:
+            return f'"{random.randint(10, 15)}.0.0"'
     
     def _log(self, msg):
         """输出日志"""
@@ -157,13 +148,13 @@ class ChatGPTClient:
     def _reset_session(self):
         """重置浏览器指纹与会话，用于绕过偶发的 Cloudflare/SPA 中间页。"""
         self.device_id = str(uuid.uuid4())
-        self.impersonate, self.chrome_major, self.chrome_full, self.ua, self.sec_ch_ua = _random_chrome_version()
-        self.accept_language = random.choice([
-            "en-US,en;q=0.9",
-            "en-US,en;q=0.9,zh-CN;q=0.8",
-            "en,en-US;q=0.9",
-            "en-US,en;q=0.8",
-        ])
+        fp = get_random_profile("chrome", prefer_newer=True)
+        self.impersonate = fp["impersonate"]
+        self.chrome_major = fp["major"]
+        self.ua = fp["ua"]
+        self.sec_ch_ua = fp["sec_ch_ua"]
+        self.accept_language = fp["accept_language"]
+        self.sec_ch_ua_platform = fp.get("sec_ch_ua_platform", '"Windows"')
 
         self.session = curl_requests.Session(impersonate=self.impersonate)
         if self.proxy:
@@ -174,11 +165,11 @@ class ChatGPTClient:
             "Accept-Language": self.accept_language,
             "sec-ch-ua": self.sec_ch_ua,
             "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
+            "sec-ch-ua-platform": self.sec_ch_ua_platform,
             "sec-ch-ua-arch": '"x86"',
             "sec-ch-ua-bitness": '"64"',
-            "sec-ch-ua-full-version": f'"{self.chrome_full}"',
-            "sec-ch-ua-platform-version": f'"{random.randint(10, 15)}.0.0"',
+            "sec-ch-ua-full-version": f'"{self.chrome_full}"' if hasattr(self, 'chrome_full') else '"136.0.7103.113"',
+            "sec-ch-ua-platform-version": self._random_platform_version(),
         })
         seed_oai_device_cookie(self.session, self.device_id)
 
