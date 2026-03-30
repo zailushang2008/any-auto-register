@@ -260,11 +260,15 @@ export default function Accounts() {
     setImportLoading(true)
     try {
       const lines = importText.trim().split('\n').filter(Boolean)
-      const res = await apiFetch('/accounts/import', {
+      // 自动检测 ---- 分隔格式（Outlook 邮箱）
+      const isOutlookFormat = lines.some(l => l.includes('----'))
+      const endpoint = isOutlookFormat ? '/accounts/import-outlook' : '/accounts/import'
+      const res = await apiFetch(endpoint, {
         method: 'POST',
         body: JSON.stringify({ platform: currentPlatform, lines }),
       })
-      message.success(`导入成功 ${res.created} 个`)
+      const errMsg = res.errors?.length ? ` (${res.errors.length} 个错误)` : ''
+      message.success(`导入成功 ${res.created} 个${errMsg}`)
       setImportModalOpen(false)
       setImportText('')
       load()
@@ -542,7 +546,8 @@ export default function Accounts() {
         maskClosable={false}
       >
         <p style={{ marginBottom: 8, fontSize: 12, color: '#7a8ba3' }}>
-          每行格式: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: 4 }}>email password [cashier_url]</code>
+          普通格式（空格分隔）: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: 4 }}>email password [cashier_url]</code><br/>
+          Outlook 格式（----分隔）: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: 4 }}>email----password----client_id----refresh_token</code>
         </p>
         <Input.TextArea
           value={importText}
