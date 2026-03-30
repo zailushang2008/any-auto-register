@@ -142,6 +142,48 @@ def import_accounts(
     return {"created": created}
 
 
+@router.post("/import-outlook")
+def import_outlook_accounts(
+    body: ImportRequest,
+    session: Session = Depends(get_session),
+):
+    """批量导入 Outlook 邮箱账号（----分隔格式）
+
+    每行格式: email----password----client_id----refresh_token
+    支持 2-4 个字段：
+      - email----password（仅 IMAP）
+      - email----password----client_id----refresh_token（Graph API）
+    """
+    created = 0
+    errors = []
+    for line in body.lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            from core.outlook_mailbox import parse_outlook_entry
+            entry = parse_outlook_entry(line)
+            extra = {
+                "outlook_email": entry["email"],
+                "outlook_password": entry["password"],
+                "outlook_client_id": entry["client_id"],
+                "outlook_refresh_token": entry["refresh_token"],
+                "mailbox_provider": "outlook",
+            }
+            acc = AccountModel(
+                platform=body.platform,
+                email=entry["email"],
+                password=entry["password"],
+                extra_json=json.dumps(extra, ensure_ascii=False),
+            )
+            session.add(acc)
+            created += 1
+        except Exception as e:
+            errors.append(f"{line[:30]}...: {e}")
+    session.commit()
+    return {"created": created, "errors": errors}
+
+
 @router.post("/batch-delete")
 def batch_delete_accounts(
     body: BatchDeleteRequest,
