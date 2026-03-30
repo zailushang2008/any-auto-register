@@ -70,6 +70,7 @@ class ChatGPTClient:
         self.sec_ch_ua = fp["sec_ch_ua"]
         self.accept_language = fp["accept_language"]
         self.sec_ch_ua_platform = fp.get("sec_ch_ua_platform", '"Windows"')
+        self.chrome_full = self.ua.split("Chrome/")[1].split(" ")[0] if "Chrome/" in self.ua else f"{self.chrome_major}.0.7103.113"
         
         # 创建 session
         self.session = curl_requests.Session(impersonate=self.impersonate)
@@ -86,7 +87,7 @@ class ChatGPTClient:
             "sec-ch-ua-platform": self.sec_ch_ua_platform,
             "sec-ch-ua-arch": '"x86"',
             "sec-ch-ua-bitness": '"64"',
-            "sec-ch-ua-full-version": f'"{self.chrome_full}"' if hasattr(self, 'chrome_full') else '"136.0.7103.113"',
+            "sec-ch-ua-full-version": f'"{self.chrome_full}"',
             "sec-ch-ua-platform-version": self._random_platform_version(),
         })
         
