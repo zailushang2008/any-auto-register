@@ -102,6 +102,7 @@ const TAB_ITEMS = [
         fields: [
           { key: 'cfworker_api_url', label: 'API URL', placeholder: 'https://apimail.example.com' },
           { key: 'cfworker_admin_token', label: '管理员 Token', secret: true },
+          { key: 'cfworker_custom_auth', label: '站点密码', secret: true },
           { key: 'cfworker_domain', label: '邮箱域名', placeholder: 'example.com' },
           { key: 'cfworker_fingerprint', label: 'Fingerprint', placeholder: '6703363b...' },
         ],
@@ -152,6 +153,18 @@ const TAB_ITEMS = [
         fields: [
           { key: 'team_manager_url', label: 'API URL', placeholder: 'https://your-tm.example.com' },
           { key: 'team_manager_key', label: 'API Key', secret: true },
+        ],
+      },
+      {
+        title: 'SMSToMe 手机验证',
+        desc: 'ChatGPT add_phone 阶段自动取号并轮询短信验证码',
+        fields: [
+          { key: 'smstome_cookie', label: 'SMSToMe Cookie', secret: true },
+          { key: 'smstome_country_slugs', label: '国家列表', placeholder: 'united-kingdom,poland' },
+          { key: 'smstome_phone_attempts', label: '手机号尝试次数', placeholder: '3' },
+          { key: 'smstome_otp_timeout_seconds', label: '短信等待秒数', placeholder: '45' },
+          { key: 'smstome_poll_interval_seconds', label: '轮询间隔秒数', placeholder: '5' },
+          { key: 'smstome_sync_max_pages_per_country', label: '每国同步页数', placeholder: '5' },
         ],
       },
     ],

@@ -84,6 +84,7 @@ class ChatGPTPlatform(BasePlatform):
                 browser_mode=browser_mode,
                 callback_logger=log_fn,
                 max_retries=max_retries,
+                extra_config=(self.config.extra or {}),
             )
             engine.email = email
             engine.password = password
@@ -116,6 +117,7 @@ class ChatGPTPlatform(BasePlatform):
                 browser_mode=browser_mode,
                 callback_logger=log_fn,
                 max_retries=max_retries,
+                extra_config=(self.config.extra or {}),
             )
             if email:
                 engine.email = email
