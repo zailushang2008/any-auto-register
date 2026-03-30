@@ -192,6 +192,8 @@ def generate_token_json(account) -> dict:
     }
 
 
+_last_cpa_upload_time = 0
+
 def upload_to_cpa(
     token_data: dict,
     api_url: str = None,
@@ -199,7 +201,19 @@ def upload_to_cpa(
     proxy: str = None,
 ) -> Tuple[bool, str]:
     """上传单个账号到 CPA 管理平台（不走代理）。
-    api_url / api_key 为空时自动从 ConfigStore 读取。"""
+    api_url / api_key 为空时自动从 ConfigStore 读取。
+    批量上传时自动延迟 2-5s 避免并发冲击。"""
+    global _last_cpa_upload_time
+    import time, random
+
+    # 批量上传节流：距离上次上传 < 2s 则等待
+    now = time.time()
+    gap = now - _last_cpa_upload_time
+    if gap < 2.0:
+        delay = random.uniform(2.0, 5.0) - gap
+        if delay > 0:
+            time.sleep(delay)
+    _last_cpa_upload_time = time.time()
     if not api_url:
         api_url = _get_config_value("cpa_api_url")
     if not api_key:
