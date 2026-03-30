@@ -147,6 +147,13 @@ class ChatGPTClient:
 
     def _reset_session(self):
         """重置浏览器指纹与会话，用于绕过偶发的 Cloudflare/SPA 中间页。"""
+        # 关闭旧会话
+        try:
+            if self.session:
+                self.session.close()
+        except Exception:
+            pass
+
         self.device_id = str(uuid.uuid4())
         fp = get_random_profile("chrome", prefer_newer=True)
         self.impersonate = fp["impersonate"]
@@ -155,6 +162,7 @@ class ChatGPTClient:
         self.sec_ch_ua = fp["sec_ch_ua"]
         self.accept_language = fp["accept_language"]
         self.sec_ch_ua_platform = fp.get("sec_ch_ua_platform", '"Windows"')
+        self.chrome_full = self.ua.split("Chrome/")[1].split(" ")[0] if "Chrome/" in self.ua else f"{self.chrome_major}.0.7103.113"
 
         self.session = curl_requests.Session(impersonate=self.impersonate)
         if self.proxy:
@@ -168,10 +176,47 @@ class ChatGPTClient:
             "sec-ch-ua-platform": self.sec_ch_ua_platform,
             "sec-ch-ua-arch": '"x86"',
             "sec-ch-ua-bitness": '"64"',
-            "sec-ch-ua-full-version": f'"{self.chrome_full}"' if hasattr(self, 'chrome_full') else '"136.0.7103.113"',
+            "sec-ch-ua-full-version": f'"{self.chrome_full}"',
             "sec-ch-ua-platform-version": self._random_platform_version(),
         })
         seed_oai_device_cookie(self.session, self.device_id)
+
+    def check_proxy_location(self):
+        """验证代理连通性与 IP 地域（Cloudflare Trace）。
+        返回 (is_foreign: bool, location: str)。CN/HK/MO/TW 视为不合规。"""
+        try:
+            r = self.session.get(
+                "https://cloudflare.com/cdn-cgi/trace",
+                timeout=10,
+            )
+            loc = ""
+            for line in r.text.splitlines():
+                if line.startswith("loc="):
+                    loc = line.split("=", 1)[1].strip()
+                    break
+            blocked = loc in ("CN", "HK", "MO", "TW", "")
+            if blocked:
+                self._log(f"⚠️ 代理 IP 地域: {loc} (可能被 OpenAI 封锁)")
+            else:
+                self._log(f"✅ 代理 IP 地域: {loc}")
+            return (not blocked, loc)
+        except Exception as e:
+            self._log(f"⚠️ 代理连通性检查失败: {e}")
+            return False, "Unknown"
+
+    def close(self):
+        """关闭所有连接，释放资源。"""
+        try:
+            if self.session:
+                self.session.close()
+        except Exception:
+            pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
     def _state_from_url(self, url, method="GET"):
         state = extract_flow_state(

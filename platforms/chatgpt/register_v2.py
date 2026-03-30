@@ -146,6 +146,11 @@ class RegistrationEngineV2:
                     )
                     chatgpt_client._log = self._log
 
+                    # 验证代理连通性与地域
+                    is_foreign, loc = chatgpt_client.check_proxy_location()
+                    if not is_foreign:
+                        self._log(f"代理地域检查未通过 (loc={loc})，继续尝试注册...")
+
                     self._log("步骤 1/2: 执行注册状态机...")
 
                     success, msg = chatgpt_client.register_complete_flow(
@@ -247,12 +252,18 @@ class RegistrationEngineV2:
                         self._log("=" * 60)
                         self._log("注册流程成功结束!")
                         self._log("=" * 60)
+                        try: chatgpt_client.close()
+                        except: pass
                         return result
 
                     last_error = self._format_oauth_failure(oauth_client)
                     result.error_message = last_error
+                    try: chatgpt_client.close()
+                    except: pass
                     return result
                 except Exception as attempt_error:
+                    try: chatgpt_client.close()
+                    except: pass
                     last_error = str(attempt_error)
                     if attempt < self.max_retries - 1 and self._should_retry(last_error):
                         self._log(f"本轮出现异常，准备整流程重试: {last_error}")
