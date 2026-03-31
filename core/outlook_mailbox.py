@@ -83,15 +83,16 @@ class OutlookMailbox(BaseMailbox):
         self._access_token = None
         self._token_expiry = 0
 
-        # 自动选择协议
+        # 自动选择协议：优先 Graph API（IMAP 基础认证已被微软禁用）
         if protocol == "auto":
             if client_id and refresh_token:
                 self._protocol = "graph"
             elif password:
                 self._protocol = "imap"
+                self._log("⚠️ IMAP 基础认证可能被微软禁用，建议使用 Graph API (client_id + refresh_token)")
             else:
                 raise RuntimeError(
-                    "Outlook 邮箱需要密码（IMAP）或 client_id + refresh_token（Graph API）"
+                    "Outlook 邮箱需要 client_id + refresh_token（Graph API）或密码（IMAP）"
                 )
 
         self._log(f"Outlook 邮箱初始化: {email_addr}, 协议: {self._protocol}")
@@ -110,7 +111,7 @@ class OutlookMailbox(BaseMailbox):
             "client_id": self._client_id,
             "grant_type": "refresh_token",
             "refresh_token": self._refresh_token,
-            "scope": "https://graph.microsoft.com/Mail.Read offline_access",
+            "scope": "https://graph.microsoft.com/.default offline_access",
         }
         proxies = {"http": self._proxy, "https": self._proxy} if self._proxy else None
         resp = curl_requests.post(

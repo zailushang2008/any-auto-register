@@ -174,6 +174,7 @@ def import_outlook_accounts(
                 platform=body.platform,
                 email=entry["email"],
                 password=entry["password"],
+                status="outlook",
                 extra_json=json.dumps(extra, ensure_ascii=False),
             )
             session.add(acc)

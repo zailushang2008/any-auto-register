@@ -33,10 +33,26 @@ const { Text } = Typography
 
 const STATUS_COLORS: Record<string, string> = {
   registered: 'default',
+  active: 'success',
+  outlook: 'blue',
+  expired: 'warning',
+  banned: 'error',
+  failed: 'error',
   trial: 'success',
   subscribed: 'success',
-  expired: 'warning',
   invalid: 'error',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  registered: '已注册',
+  active: '活跃',
+  outlook: 'Outlook邮箱',
+  expired: '已过期',
+  banned: '已封号',
+  failed: '失败',
+  trial: '试用',
+  subscribed: '已订阅',
+  invalid: '无效',
 }
 
 function LogPanel({ taskId, onDone }: { taskId: string; onDone: () => void }) {
@@ -368,7 +384,7 @@ export default function Accounts() {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => <Tag color={STATUS_COLORS[status] || 'default'}>{status}</Tag>,
+      render: (status: string) => <Tag color={STATUS_COLORS[status] || 'default'}>{STATUS_LABELS[status] || status}</Tag>,
     },
     {
       title: '地区',

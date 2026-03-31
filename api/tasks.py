@@ -132,11 +132,16 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
             """从池中取一个 Outlook 账号（轮询）"""
             if not _outlook_pool:
                 from core.db import AccountModel, engine
-                from sqlmodel import Session, select
+                from sqlmodel import Session, select, or_
                 with Session(engine) as db_sess:
                     stmt = select(AccountModel).where(
                         AccountModel.platform == "chatgpt",
                         AccountModel.status != "banned",
+                        AccountModel.token == "",
+                        or_(
+                            AccountModel.status == "outlook",
+                            AccountModel.status == "registered",
+                        ),
                     ).order_by(AccountModel.id)
                     for acct in db_sess.exec(stmt).all():
                         extra = acct.get_extra()
