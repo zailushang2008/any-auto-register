@@ -107,6 +107,10 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
             from core.config_store import config_store
             merged_extra = config_store.get_all().copy()
             merged_extra.update({k: v for k, v in req.extra.items() if v is not None and v != ""})
+            # token_mode -> simple_mode / oauth_after_register
+            _tm = merged_extra.get("token_mode", "normal")
+            merged_extra["simple_mode"] = _tm == "simple"
+            merged_extra["oauth_after_register"] = _tm == "refresh_token"
             provider = merged_extra.get("mail_provider", "laoudo")
 
             # 如果传入了 outlook_acct，使用该账号的凭据
@@ -173,6 +177,10 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
                 from core.config_store import config_store
                 merged_extra = config_store.get_all().copy()
                 merged_extra.update({k: v for k, v in req.extra.items() if v is not None and v != ""})
+                # token_mode -> simple_mode / oauth_after_register
+                _tm = merged_extra.get("token_mode", "normal")
+                merged_extra["simple_mode"] = _tm == "simple"
+                merged_extra["oauth_after_register"] = _tm == "refresh_token"
                 
                 _config = RegisterConfig(
                     executor_type=req.executor_type,
