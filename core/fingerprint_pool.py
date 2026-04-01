@@ -20,23 +20,23 @@ from typing import Optional
 # ==================== Chrome 指纹池 ====================
 
 CHROME_PROFILES = [
-    # Chrome 128
+    # Chrome 128 (mapped to chrome131 for curl_cffi compatibility)
     {
-        "major": 128, "impersonate": "chrome128",
+        "major": 128, "impersonate": "chrome131",
         "build": 6613, "patch_range": (79, 205),
         "sec_ch_ua": '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
         "platform": "Windows",
     },
-    # Chrome 129
+    # Chrome 129 (mapped to chrome131 for curl_cffi compatibility)
     {
-        "major": 129, "impersonate": "chrome129",
+        "major": 129, "impersonate": "chrome131",
         "build": 6668, "patch_range": (65, 195),
         "sec_ch_ua": '"Google Chrome";v="129", "Chromium";v="129", "Not_A Brand";v="24"',
         "platform": "Windows",
     },
-    # Chrome 130
+    # Chrome 130 (mapped to chrome131 for curl_cffi compatibility)
     {
-        "major": 130, "impersonate": "chrome130",
+        "major": 130, "impersonate": "chrome131",
         "build": 6723, "patch_range": (56, 183),
         "sec_ch_ua": '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
         "platform": "Windows",
@@ -48,9 +48,9 @@ CHROME_PROFILES = [
         "sec_ch_ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
         "platform": "Windows",
     },
-    # Chrome 132
+    # Chrome 132 (mapped to chrome133a for curl_cffi compatibility)
     {
-        "major": 132, "impersonate": "chrome132",
+        "major": 132, "impersonate": "chrome133a",
         "build": 6834, "patch_range": (50, 190),
         "sec_ch_ua": '"Google Chrome";v="132", "Chromium";v="132", "Not-A.Brand";v="24"',
         "platform": "Windows",
@@ -62,21 +62,14 @@ CHROME_PROFILES = [
         "sec_ch_ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
         "platform": "Windows",
     },
-    # Chrome 134
+    # Chrome 134 (mapped to chrome136 for curl_cffi compatibility)
     {
-        "major": 134, "impersonate": "chrome134",
+        "major": 134, "impersonate": "chrome136",
         "build": 6998, "patch_range": (27, 159),
         "sec_ch_ua": '"Chromium";v="134", "Google Chrome";v="134", "Not.A/Brand";v="24"',
         "platform": "Windows",
     },
     # Chrome 136
-    {
-        "major": 136, "impersonate": "chrome136",
-        "build": 7103, "patch_range": (48, 175),
-        "sec_ch_ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-        "platform": "Windows",
-    },
-    # Chrome 136 (chrome137 not supported by curl_cffi 0.14.0)
     {
         "major": 136, "impersonate": "chrome136",
         "build": 7103, "patch_range": (48, 175),
