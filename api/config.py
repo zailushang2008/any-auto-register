@@ -7,7 +7,7 @@ router = APIRouter(prefix="/config", tags=["config"])
 CONFIG_KEYS = [
     "laoudo_auth", "laoudo_email", "laoudo_account_id",
     "yescaptcha_key", "twocaptcha_key",
-    "default_executor", "default_captcha_solver",
+    "default_executor", "default_captcha_solver", "token_mode",
     "duckmail_api_url", "duckmail_provider_url", "duckmail_bearer",
     "freemail_api_url", "freemail_admin_token", "freemail_username", "freemail_password",
     "moemail_api_url",
