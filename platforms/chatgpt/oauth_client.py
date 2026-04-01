@@ -1450,6 +1450,7 @@ class OAuthClient:
 
         if hasattr(skymail_client, "wait_for_verification_code"):
             self._log("使用 wait_for_verification_code 进行阻塞式获取新验证码...")
+            same_code_count = 0
             while time.time() < otp_deadline:
                 remaining = max(1, int(otp_deadline - time.time()))
                 wait_time = min(10, remaining)
@@ -1471,8 +1472,14 @@ class OAuthClient:
                     continue
 
                 if code in tried_codes:
-                    self._log(f"跳过已尝试验证码: {code}")
+                    same_code_count += 1
+                    if same_code_count >= 5:
+                        self._log(f"连续 {same_code_count} 次获取到相同验证码 {code}，停止重试")
+                        break
+                    self._log(f"跳过已尝试验证码: {code} (第{same_code_count}次)，等待新验证码...")
+                    time.sleep(3)
                     continue
+                same_code_count = 0
 
                 next_state = validate_otp(code)
                 if next_state:
