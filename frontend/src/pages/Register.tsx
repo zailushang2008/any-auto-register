@@ -197,16 +197,12 @@ export default function Register() {
             </Form.Item>
           </Space>
 
-          {platform === 'chatgpt' && (
-            <>
-              <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="oauth_after_register" label="注册后获取 refresh_token" valuePropName="checked">
-                <Switch />
-              </Form.Item>
-            </>
-          )}
+          <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Form.Item name="oauth_after_register" label="注册后获取 refresh_token（仅 ChatGPT）" valuePropName="checked">
+            <Switch />
+          </Form.Item>
 
           <Space style={{ width: '100%' }}>
             <Form.Item name="proxy" label="代理 (可选)" style={{ flex: 1 }}>
