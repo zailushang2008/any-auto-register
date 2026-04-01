@@ -16,11 +16,23 @@ services:
       APP_RUNTIME_DIR: /runtime
       SOLVER_PORT: "8889"
       SOLVER_BROWSER_TYPE: chromium
-    ports:
-      - "8000:8000"
-      - "8889:8889"
+    expose:
+      - "8000"
+      - "8889"
     volumes:
       - app_runtime:/runtime
+
+  nginx:
+    image: nginx:alpine
+    container_name: any-auto-register-nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+    depends_on:
+      - app
 
 volumes:
   app_runtime:
