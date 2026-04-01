@@ -148,7 +148,7 @@ function AppContent() {
               padding: '0 16px',
               textAlign: 'center',
               fontSize: 11,
-              color: currentTheme.token?.colorTextQuaternary,
+              color: currentTheme.token?.colorTextTertiary,
             }}
           >
             v1.1.0
