@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { ConfigProvider, Layout, Menu, Button, Switch } from 'antd'
+import { ConfigProvider, Layout, Menu, Button } from 'antd'
 import {
   DashboardOutlined,
   UserOutlined,
@@ -139,35 +139,6 @@ function AppContent() {
               background: 'transparent',
             }}
           />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 90,
-              left: 0,
-              right: 0,
-              padding: '0 16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: currentTheme.token?.colorTextSecondary }}>
-              <span>简单模式</span>
-              <Switch
-                size="small"
-                checked={localStorage.getItem('simple_mode') === 'true'}
-                onChange={(v) => localStorage.setItem('simple_mode', String(v))}
-              />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: currentTheme.token?.colorTextSecondary }}>
-              <span>获取 refresh_token</span>
-              <Switch
-                size="small"
-                checked={localStorage.getItem('oauth_after_register') === 'true'}
-                onChange={(v) => localStorage.setItem('oauth_after_register', String(v))}
-              />
-            </div>
-          </div>
           <div
             style={{
               position: 'absolute',
