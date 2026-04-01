@@ -179,9 +179,41 @@ class RegistrationEngineV2:
 
                     if session_ok:
                         self._log("Token 提取完成！")
+
+                        # 可选：复用已有 session 跑 OAuth PKCE 获取 refresh_token（长期有效）
+                        if self.extra_config.get("oauth_after_register"):
+                            self._log("oauth_after_register: 尝试复用 session 获取 refresh_token...")
+                            oauth_client_opt = OAuthClient(
+                                config=self.extra_config,
+                                proxy=self.proxy_url,
+                                verbose=False,
+                                browser_mode=self.browser_mode,
+                            )
+                            oauth_client_opt._log = self._log
+                            oauth_client_opt.session = chatgpt_client.session
+                            oauth_tokens = oauth_client_opt.login_and_get_tokens(
+                                email_addr,
+                                pwd,
+                                chatgpt_client.device_id,
+                                chatgpt_client.ua,
+                                chatgpt_client.sec_ch_ua,
+                                chatgpt_client.impersonate,
+                                skymail_adapter,
+                            )
+                            if oauth_tokens and oauth_tokens.get("refresh_token"):
+                                self._log("OAuth refresh_token 获取成功！")
+                                result.access_token = oauth_tokens.get("access_token", result.access_token)
+                                result.refresh_token = oauth_tokens.get("refresh_token")
+                                result.id_token = oauth_tokens.get("id_token", "")
+                            else:
+                                self._log(f"OAuth refresh_token 获取失败（不影响，保留 session_token）: {oauth_client_opt.last_error}")
+
                         result.success = True
-                        result.access_token = session_result.get("access_token", "")
-                        result.session_token = session_result.get("session_token", "")
+                        # 如果 OAuth 补全成功（有 refresh_token），保留 OAuth 的 access_token；否则用 session 的
+                        if not result.refresh_token:
+                            result.access_token = session_result.get("access_token", "")
+                        if not result.session_token:
+                            result.session_token = session_result.get("session_token", "")
                         result.account_id = (
                             session_result.get("account_id")
                             or session_result.get("user_id")
