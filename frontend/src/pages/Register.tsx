@@ -196,6 +196,18 @@ export default function Register() {
               <InputNumber min={0} precision={1} step={0.5} style={{ width: '100%' }} placeholder="0" />
             </Form.Item>
           </Space>
+
+          {platform === 'chatgpt' && (
+            <>
+              <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="oauth_after_register" label="注册后获取 refresh_token" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </>
+          )}
+
           <Space style={{ width: '100%' }}>
             <Form.Item name="proxy" label="代理 (可选)" style={{ flex: 1 }}>
               <Input placeholder="http://user:pass@host:port" />
@@ -266,17 +278,6 @@ export default function Register() {
             </>
           )}
         </Card>
-
-        {platform === 'chatgpt' && (
-          <Card title="ChatGPT 选项" style={{ marginBottom: 16 }}>
-            <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-            <Form.Item name="oauth_after_register" label="注册后获取 refresh_token" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-          </Card>
-        )}
 
         {platform === 'chatgpt' && (
           <Card title="ChatGPT 手机验证" style={{ marginBottom: 16 }}>
