@@ -76,11 +76,11 @@ CHROME_PROFILES = [
         "sec_ch_ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
         "platform": "Windows",
     },
-    # Chrome 137
+    # Chrome 136 (chrome137 not supported by curl_cffi 0.14.0)
     {
-        "major": 137, "impersonate": "chrome137",
-        "build": 7158, "patch_range": (10, 99),
-        "sec_ch_ua": '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+        "major": 136, "impersonate": "chrome136",
+        "build": 7103, "patch_range": (48, 175),
+        "sec_ch_ua": '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
         "platform": "Windows",
     },
 ]
