@@ -34,6 +34,11 @@ const SELECT_FIELDS: Record<string, { label: string; value: string }[]> = {
     { label: '本地 Solver (Camoufox)', value: 'local_solver' },
     { label: '手动', value: 'manual' },
   ],
+  token_mode: [
+    { label: '默认（Session Token）', value: 'normal' },
+    { label: '获取 refresh_token', value: 'refresh_token' },
+    { label: '简单模式（不拿 Token）', value: 'simple' },
+  ],
 }
 
 const TAB_ITEMS = [
@@ -45,7 +50,10 @@ const TAB_ITEMS = [
       {
         title: '默认注册方式',
         desc: '控制注册任务如何执行',
-        fields: [{ key: 'default_executor', label: '执行器类型', type: 'select' }],
+        fields: [
+          { key: 'default_executor', label: '执行器类型', type: 'select' },
+          { key: 'token_mode', label: 'Token 模式（ChatGPT）', type: 'select' },
+        ],
       },
     ],
   },

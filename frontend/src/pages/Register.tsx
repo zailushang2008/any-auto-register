@@ -10,7 +10,6 @@ import {
   Space,
   Typography,
   Descriptions,
-  Radio,
 } from 'antd'
 import {
   PlayCircleOutlined,
@@ -27,9 +26,11 @@ export default function Register() {
   const [form] = Form.useForm()
   const [task, setTask] = useState<any>(null)
   const [polling, setPolling] = useState(false)
+  const [globalConfig, setGlobalConfig] = useState<any>({})
 
   useEffect(() => {
     apiFetch('/config').then((cfg) => {
+      setGlobalConfig(cfg)
       const currentPlatform = form.getFieldValue('platform') || 'trae'
       form.setFieldsValue({
         executor_type: normalizeExecutorForPlatform(currentPlatform, cfg.default_executor),
@@ -109,8 +110,8 @@ export default function Register() {
           luckmail_domain: values.luckmail_domain,
           yescaptcha_key: values.yescaptcha_key,
           solver_url: values.solver_url,
-          simple_mode: values.token_mode === 'simple',
-          oauth_after_register: values.token_mode === 'refresh_token',
+          simple_mode: (globalConfig.token_mode || 'normal') === 'simple',
+          oauth_after_register: (globalConfig.token_mode || 'normal') === 'refresh_token',
         },
       }),
     })
@@ -196,20 +197,6 @@ export default function Register() {
               <InputNumber min={0} precision={1} step={0.5} style={{ width: '100%' }} placeholder="0" />
             </Form.Item>
           </Space>
-
-          {platform === 'chatgpt' && (
-            <Form.Item name="token_mode" label="Token 模式" key={`token-mode-${platform}`}>
-              <Radio.Group
-                optionType="button"
-                buttonStyle="solid"
-                options={[
-                  { value: 'normal', label: '默认（Session Token）' },
-                  { value: 'refresh_token', label: '获取 refresh_token' },
-                  { value: 'simple', label: '简单模式（不拿 Token）' },
-                ]}
-              />
-            </Form.Item>
-          )}
 
           <Space style={{ width: '100%' }}>
             <Form.Item name="proxy" label="代理 (可选)" style={{ flex: 1 }}>
