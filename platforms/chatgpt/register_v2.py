@@ -165,6 +165,15 @@ class RegistrationEngineV2:
                         result.error_message = last_error
                         return result
 
+                    self._log("注册成功！")
+
+                    # 简单模式：跳过 Token 提取，只保存账号密码
+                    if self.extra_config.get("simple_mode"):
+                        self._log("简单模式：跳过 Token 提取，只保存账号密码")
+                        result.success = True
+                        result.account_id = "v2_acct_" + chatgpt_client.device_id[:8]
+                        return result
+
                     self._log("步骤 2/2: 优先复用注册会话提取 ChatGPT Session / AccessToken...")
                     session_ok, session_result = chatgpt_client.reuse_session_and_get_tokens()
 
