@@ -10,7 +10,6 @@ import {
   Space,
   Typography,
   Descriptions,
-  Switch,
 } from 'antd'
 import {
   PlayCircleOutlined,
@@ -109,8 +108,8 @@ export default function Register() {
           luckmail_domain: values.luckmail_domain,
           yescaptcha_key: values.yescaptcha_key,
           solver_url: values.solver_url,
-          simple_mode: values.simple_mode || false,
-          oauth_after_register: values.oauth_after_register || false,
+          simple_mode: localStorage.getItem('simple_mode') === 'true',
+          oauth_after_register: localStorage.getItem('oauth_after_register') === 'true',
         },
       }),
     })
@@ -196,13 +195,6 @@ export default function Register() {
               <InputNumber min={0} precision={1} step={0.5} style={{ width: '100%' }} placeholder="0" />
             </Form.Item>
           </Space>
-
-          <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-          <Form.Item name="oauth_after_register" label="注册后获取 refresh_token（仅 ChatGPT）" valuePropName="checked">
-            <Switch />
-          </Form.Item>
 
           <Space style={{ width: '100%' }}>
             <Form.Item name="proxy" label="代理 (可选)" style={{ flex: 1 }}>
