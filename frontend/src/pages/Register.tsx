@@ -10,7 +10,7 @@ import {
   Space,
   Typography,
   Descriptions,
-  Switch,
+  Radio,
 } from 'antd'
 import {
   PlayCircleOutlined,
@@ -109,8 +109,8 @@ export default function Register() {
           luckmail_domain: values.luckmail_domain,
           yescaptcha_key: values.yescaptcha_key,
           solver_url: values.solver_url,
-          simple_mode: values.simple_mode || false,
-          oauth_after_register: values.oauth_after_register || false,
+          simple_mode: values.token_mode === 'simple',
+          oauth_after_register: values.token_mode === 'refresh_token',
         },
       }),
     })
@@ -197,12 +197,19 @@ export default function Register() {
             </Form.Item>
           </Space>
 
-          <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-          <Form.Item name="oauth_after_register" label="注册后获取 refresh_token（ChatGPT）" valuePropName="checked">
-            <Switch />
-          </Form.Item>
+          {platform === 'chatgpt' && (
+            <Form.Item name="token_mode" label="Token 模式" key={`token-mode-${platform}`}>
+              <Radio.Group
+                optionType="button"
+                buttonStyle="solid"
+                options={[
+                  { value: 'normal', label: '默认（Session Token）' },
+                  { value: 'refresh_token', label: '获取 refresh_token' },
+                  { value: 'simple', label: '简单模式（不拿 Token）' },
+                ]}
+              />
+            </Form.Item>
+          )}
 
           <Space style={{ width: '100%' }}>
             <Form.Item name="proxy" label="代理 (可选)" style={{ flex: 1 }}>
