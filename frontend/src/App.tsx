@@ -142,6 +142,20 @@ function AppContent() {
           <div
             style={{
               position: 'absolute',
+              bottom: 48,
+              left: 0,
+              right: 0,
+              padding: '0 16px',
+              textAlign: 'center',
+              fontSize: 11,
+              color: currentTheme.token?.colorTextQuaternary,
+            }}
+          >
+            v1.1.0
+          </div>
+          <div
+            style={{
+              position: 'absolute',
               bottom: 16,
               left: 0,
               right: 0,
