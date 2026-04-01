@@ -10,6 +10,7 @@ import {
   Space,
   Typography,
   Descriptions,
+  Switch,
 } from 'antd'
 import {
   PlayCircleOutlined,
@@ -108,6 +109,8 @@ export default function Register() {
           luckmail_domain: values.luckmail_domain,
           yescaptcha_key: values.yescaptcha_key,
           solver_url: values.solver_url,
+          simple_mode: values.simple_mode || false,
+          oauth_after_register: values.oauth_after_register || false,
         },
       }),
     })
@@ -263,6 +266,17 @@ export default function Register() {
             </>
           )}
         </Card>
+
+        {platform === 'chatgpt' && (
+          <Card title="ChatGPT 选项" style={{ marginBottom: 16 }}>
+            <Form.Item name="simple_mode" label="简单模式（只注册，不拿 Token）" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="oauth_after_register" label="注册后获取 refresh_token" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Card>
+        )}
 
         {platform === 'chatgpt' && (
           <Card title="ChatGPT 手机验证" style={{ marginBottom: 16 }}>
